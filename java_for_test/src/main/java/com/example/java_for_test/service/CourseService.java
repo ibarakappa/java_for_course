@@ -8,4 +8,6 @@ import com.example.java_for_test.vo.CourseResponse;
 @Service
 public interface CourseService {
 	public CourseResponse chooseCourse(CourseRequest req);
+
+	public CourseResponse addOrDrop(CourseRequest req);
 }

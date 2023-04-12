@@ -22,14 +22,26 @@ public class StudentCourse implements Serializable {
 	@Id
 	@Column(name = "student_number")
 	private Integer number;
+	@Column(name = "course_name")
+	private String courseName;
 	@Column(name = "student_credit")
 	private Integer credit;
 
-	public StudentCourse(String courseCode, Integer number, Integer credit) {
+	public StudentCourse(String courseCode, Integer number, String courseName,
+			Integer credit) {
 		super();
 		this.courseCode = courseCode;
 		this.number = number;
+		this.courseName = courseName;
 		this.credit = credit;
+	}
+
+	public String getCourseName() {
+		return courseName;
+	}
+
+	public void setCourseName(String courseName) {
+		this.courseName = courseName;
 	}
 
 	public StudentCourse() {

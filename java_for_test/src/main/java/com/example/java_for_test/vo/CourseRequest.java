@@ -4,6 +4,7 @@ import java.util.List;
 
 public class CourseRequest {
 	public Integer number;
+	public String addOrDrop;
 	public List<String> courseCode;
 
 	public Integer getNumber() {
@@ -20,6 +21,14 @@ public class CourseRequest {
 
 	public void setCourseCode(List<String> courseCode) {
 		this.courseCode = courseCode;
+	}
+
+	public String getAddOrDrop() {
+		return addOrDrop;
+	}
+
+	public void setAddOrDrop(String addOrDrop) {
+		this.addOrDrop = addOrDrop;
 	}
 
 }

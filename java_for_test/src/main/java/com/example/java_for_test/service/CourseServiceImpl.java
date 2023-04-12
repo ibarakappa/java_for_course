@@ -1,5 +1,6 @@
 package com.example.java_for_test.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,37 +26,70 @@ public class CourseServiceImpl implements CourseService {
 
 	@Override
 	public CourseResponse chooseCourse(CourseRequest req) {
-		if (!studentDao.existsByNumber(req.getNumber())) {
-			return null;
-			// 之後補寫回傳"學號錯誤"
-		}
-		List<StudentCourse> allCredit = studentCourseDao.findByNumber(req.getNumber());
-		int totalCredit = 0;
-		for (StudentCourse course : allCredit) {
-			totalCredit += course.getCredit();
-		}
-		if (totalCredit > 10) {
-			return null;
-			//// 之後補寫回傳學分已超過10
-		}
+		// 設定重複修同一堂課的防呆
 
+		if (checkNumber(req)) {
+			return new CourseResponse("學號錯誤");
+		}
+		int studentCredit = credit(req);
+		if (studentCredit > 10) {
+			return new CourseResponse("您的學分已超過10");
+		}
+		int chooseCredit = studentCredit;
+		List<StudentCourse> student = new ArrayList<StudentCourse>();
+		List<StudentCourse> overChoose = new ArrayList<StudentCourse>();
 		for (String course : req.getCourseCode()) {
 			if (!courseDao.existsByCourseCode(course)) {
-				return null;
+				return new CourseResponse("課程代碼錯誤");
 			}
-			// 之後補寫回傳 "沒有這堂課"or"課程代碼錯誤"
+
 			Course lesson = courseDao.findByCourseCode(course);
-			totalCredit += lesson.getCredit();
-			if (totalCredit > 10) {
-				return null;
-				//// 之後補寫回傳"學分已超過10"
+			studentCredit += lesson.getCredit();
+			if (chooseCredit > 10) {
+				return new CourseResponse("選修的學分已超過10");
 			}
-			StudentCourse student = new StudentCourse(lesson.getCode(), req.getNumber(),
-					lesson.getCredit());
-			studentCourseDao.save(student);
+			StudentCourse studentCourse = new StudentCourse(lesson.getCode(),
+					req.getNumber(), lesson.getCourseName(), lesson.getCredit());
+			if (studentCourseDao.findByNumber(req.getNumber()).contains(studentCourse)) {
+				overChoose.add(studentCourse);
+				continue;
+			}
+			student.add(studentCourse);
+
 		}
-		return new CourseResponse("選課成功");
+		studentCourseDao.saveAll(student);
+		if (!overChoose.isEmpty()) {
+			return new CourseResponse("選課成功但有重複選課", student);
+		}
+		return new CourseResponse("選課成功", student);
 //		選課成功
+	}
+
+	@Override
+	public CourseResponse addOrDrop(CourseRequest req) {
+		// TODO Auto-generated method stub
+		if (checkNumber(req)) {
+			return new CourseResponse("學號錯誤");
+		}
+		if (credit(req) > 10) {
+			return new CourseResponse("選修的學分已超過10");
+		}
+
+		return null;
+	}
+
+	public boolean checkNumber(CourseRequest req) {
+		return studentDao.existsByNumber(req.getNumber());
+
+	}
+
+	public int credit(CourseRequest req) {
+		List<StudentCourse> allCredit = studentCourseDao.findByNumber(req.getNumber());
+		int studentCredit = 0;
+		for (StudentCourse course : allCredit) {
+			studentCredit += course.getCredit();
+		}
+		return studentCredit;
 	}
 
 }
