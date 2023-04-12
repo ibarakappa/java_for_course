@@ -10,17 +10,17 @@ import javax.persistence.Table;
 public class Student {
 	@Id
 	@Column(name = "number")
-	private int number;
+	private Integer number;
 	@Column(name = "name")
 	private String name;
 	@Column(name = "credit")
-	private int credit;
+	private Integer credit;
 
-	public int getNumber() {
+	public Integer getNumber() {
 		return number;
 	}
 
-	public void setNumber(int number) {
+	public void setNumber(Integer number) {
 		this.number = number;
 	}
 
@@ -32,11 +32,11 @@ public class Student {
 		this.name = name;
 	}
 
-	public int getCredit() {
+	public Integer getCredit() {
 		return credit;
 	}
 
-	public void setCredit(int credit) {
+	public void setCredit(Integer credit) {
 		this.credit = credit;
 	}
 

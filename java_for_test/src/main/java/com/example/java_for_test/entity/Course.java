@@ -14,15 +14,13 @@ public class Course {
 	@Column(name = "course_name")
 	private String courseName;
 	@Column(name = "course_week")
-	private int week;
+	private Integer week;
 	@Column(name = "course_start_time")
-	private int startTime;
+	private Integer startTime;
 	@Column(name = "course_end_time")
-	private int endTime;
+	private Integer endTime;
 	@Column(name = "course_credit")
-	private int credit;
-	@Column(name = "course_student")
-	private int student;
+	private Integer credit;
 
 	public String getCode() {
 		return courseCode;
@@ -40,44 +38,36 @@ public class Course {
 		this.courseName = courseName;
 	}
 
-	public int getWeek() {
+	public Integer getWeek() {
 		return week;
 	}
 
-	public void setWeek(int week) {
+	public void setWeek(Integer week) {
 		this.week = week;
 	}
 
-	public int getStartTime() {
+	public Integer getStartTime() {
 		return startTime;
 	}
 
-	public void setStartTime(int startTime) {
+	public void setStartTime(Integer startTime) {
 		this.startTime = startTime;
 	}
 
-	public int getEndTime() {
+	public Integer getEndTime() {
 		return endTime;
 	}
 
-	public void setEndTime(int endTime) {
+	public void setEndTime(Integer endTime) {
 		this.endTime = endTime;
 	}
 
-	public int getCredit() {
+	public Integer getCredit() {
 		return credit;
 	}
 
-	public void setCredit(int credit) {
+	public void setCredit(Integer credit) {
 		this.credit = credit;
-	}
-
-	public int getStudent() {
-		return student;
-	}
-
-	public void setStudent(int student) {
-		this.student = student;
 	}
 
 }
