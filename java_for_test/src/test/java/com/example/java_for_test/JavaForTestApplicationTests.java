@@ -14,6 +14,6 @@ class JavaForTestApplicationTests {
 
 	@Test
 	public void getStudents() {
-
+		studentDao.setStudentCredit(1001, 10);
 	}
 }

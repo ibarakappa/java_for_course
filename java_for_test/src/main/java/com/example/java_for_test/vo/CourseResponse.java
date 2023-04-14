@@ -3,6 +3,7 @@ package com.example.java_for_test.vo;
 import java.util.List;
 
 import com.example.java_for_test.entity.Course;
+import com.example.java_for_test.entity.Student;
 import com.example.java_for_test.entity.StudentCourse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,9 +14,18 @@ public class CourseResponse {
 	private String message;
 	@JsonProperty("課程:")
 	private String lesson;
-	@JsonProperty("課程清單")
+	@JsonProperty("你的課程清單")
 	private List<StudentCourse> list;
+	@JsonProperty("課程資料")
 	private List<Course> courselist;
+	@JsonProperty("學生資料")
+	private Student student;
+
+	public CourseResponse(String message, Student student) {
+		super();
+		this.message = message;
+		this.student = student;
+	}
 
 	public CourseResponse(String message, String lesson) {
 		super();
@@ -68,6 +78,14 @@ public class CourseResponse {
 
 	public void setCourselist(List<Course> courselist) {
 		this.courselist = courselist;
+	}
+
+	public Student getStudent() {
+		return student;
+	}
+
+	public void setStudent(Student student) {
+		this.student = student;
 	}
 
 }

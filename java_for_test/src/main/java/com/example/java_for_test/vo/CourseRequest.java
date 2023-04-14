@@ -3,6 +3,7 @@ package com.example.java_for_test.vo;
 import java.util.List;
 
 import com.example.java_for_test.entity.Course;
+import com.example.java_for_test.entity.Student;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CourseRequest {
@@ -14,6 +15,8 @@ public class CourseRequest {
 	private List<String> courseCodeList;
 	@JsonProperty("課程內容")
 	private List<Course> courseList;
+	@JsonProperty("學生資料")
+	private Student student;
 
 	public Integer getNumber() {
 		return number;
@@ -45,6 +48,14 @@ public class CourseRequest {
 
 	public void setCourseList(List<Course> courseList) {
 		this.courseList = courseList;
+	}
+
+	public Student getStudent() {
+		return student;
+	}
+
+	public void setStudent(Student student) {
+		this.student = student;
 	}
 
 }

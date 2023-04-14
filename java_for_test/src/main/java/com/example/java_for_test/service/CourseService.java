@@ -15,6 +15,8 @@ public interface CourseService {
 
 	public CourseResponse deleteCourse(CourseRequest req);
 
+	public CourseResponse addNewStudent(CourseRequest req);
+
 	public CourseResponse deleteStudent(CourseRequest req);
 
 }

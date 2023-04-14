@@ -34,4 +34,14 @@ public class CourseController {
 		return courseService.deleteCourse(req);
 	}
 
+	@PostMapping("/add_New_Student")
+	public CourseResponse addNewStudent(@RequestBody CourseRequest req) {
+		return courseService.addNewStudent(req);
+	}
+
+	@PostMapping("/delete_Student")
+	public CourseResponse deleteStudent(@RequestBody CourseRequest req) {
+		return courseService.deleteStudent(req);
+	}
+
 }
