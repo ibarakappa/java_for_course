@@ -2,10 +2,18 @@ package com.example.java_for_test.vo;
 
 import java.util.List;
 
+import com.example.java_for_test.entity.Course;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class CourseRequest {
-	public Integer number;
-	public String addOrDrop;
-	public List<String> courseCode;
+	@JsonProperty("學號")
+	private Integer number;
+	@JsonProperty("加選或退選")
+	private String addOrDrop;
+	@JsonProperty("課程代碼")
+	private List<String> courseCodeList;
+	@JsonProperty("課程內容")
+	private List<Course> courseList;
 
 	public Integer getNumber() {
 		return number;
@@ -15,12 +23,12 @@ public class CourseRequest {
 		this.number = number;
 	}
 
-	public List<String> getCourseCode() {
-		return courseCode;
+	public List<String> getCourseCodeList() {
+		return courseCodeList;
 	}
 
-	public void setCourseCode(List<String> courseCode) {
-		this.courseCode = courseCode;
+	public void setCourseCodeList(List<String> courseCodeList) {
+		this.courseCodeList = courseCodeList;
 	}
 
 	public String getAddOrDrop() {
@@ -29,6 +37,14 @@ public class CourseRequest {
 
 	public void setAddOrDrop(String addOrDrop) {
 		this.addOrDrop = addOrDrop;
+	}
+
+	public List<Course> getCourseList() {
+		return courseList;
+	}
+
+	public void setCourseList(List<Course> courseList) {
+		this.courseList = courseList;
 	}
 
 }

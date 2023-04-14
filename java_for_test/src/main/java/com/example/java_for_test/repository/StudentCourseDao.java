@@ -10,4 +10,10 @@ import com.example.java_for_test.entity.StudentCourse.StudentCourseId;
 public interface StudentCourseDao extends JpaRepository<StudentCourse, StudentCourseId> {
 	List<StudentCourse> findByNumber(int number);
 
+	List<StudentCourse> findByNumberIsAndCourseNameIs(int number, String CourseNameCode);
+
+	StudentCourse findByNumberIsAndCourseCodeIs(int number, String CourseNameCode);
+
+	List<StudentCourse> findByCourseName(String courseName);
+
 }

@@ -22,14 +22,6 @@ public class Course {
 	@Column(name = "course_credit")
 	private Integer credit;
 
-	public String getCode() {
-		return courseCode;
-	}
-
-	public void setCode(String code) {
-		this.courseCode = code;
-	}
-
 	public String getCourseName() {
 		return courseName;
 	}

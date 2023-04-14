@@ -24,63 +24,78 @@ public class CourseServiceImpl implements CourseService {
 	@Autowired
 	StudentCourseDao studentCourseDao;
 
+//	選課功能
 	@Override
 	public CourseResponse chooseCourse(CourseRequest req) {
-		// 設定重複修同一堂課的防呆
-
-		if (checkNumber(req)) {
-			return new CourseResponse("學號錯誤");
-		}
-		int studentCredit = credit(req);
-		if (studentCredit > 10) {
-			return new CourseResponse("您的學分已超過10");
-		}
-		int chooseCredit = studentCredit;
-		List<StudentCourse> student = new ArrayList<StudentCourse>();
-		List<StudentCourse> overChoose = new ArrayList<StudentCourse>();
-		for (String course : req.getCourseCode()) {
-			if (!courseDao.existsByCourseCode(course)) {
-				return new CourseResponse("課程代碼錯誤");
-			}
-
-			Course lesson = courseDao.findByCourseCode(course);
-			studentCredit += lesson.getCredit();
-			if (chooseCredit > 10) {
-				return new CourseResponse("選修的學分已超過10");
-			}
-			StudentCourse studentCourse = new StudentCourse(lesson.getCode(),
-					req.getNumber(), lesson.getCourseName(), lesson.getCredit());
-			if (studentCourseDao.findByNumber(req.getNumber()).contains(studentCourse)) {
-				overChoose.add(studentCourse);
-				continue;
-			}
-			student.add(studentCourse);
-
-		}
-		studentCourseDao.saveAll(student);
-		if (!overChoose.isEmpty()) {
-			return new CourseResponse("選課成功但有重複選課", student);
-		}
-		return new CourseResponse("選課成功", student);
-//		選課成功
+		return pickCourse(req);
 	}
 
+	// 退選功能
 	@Override
-	public CourseResponse addOrDrop(CourseRequest req) {
-		// TODO Auto-generated method stub
-		if (checkNumber(req)) {
-			return new CourseResponse("學號錯誤");
+	public CourseResponse pickAndDropCourse(CourseRequest req) {
+		if (req.getAddOrDrop().equals("加選")) {
+			return pickCourse(req);
 		}
-		if (credit(req) > 10) {
-			return new CourseResponse("選修的學分已超過10");
+		if (req.getAddOrDrop().equals("退選")) {
+			return dropCourse(req);
 		}
-
-		return null;
+		return new CourseResponse("請正確輸入加選或退選");
 	}
 
+	// 新增課程
+	@Override
+	public CourseResponse addNewCourse(CourseRequest req) {
+		List<Course> list = new ArrayList<Course>();
+		for (Course course : req.getCourseList()) {
+			if (course.getWeek() < 0 || course.getWeek() > 7) {
+				return new CourseResponse("星期錯誤，請正確輸入1~7");
+			}
+			if (course.getStartTime() > course.getEndTime()) {
+				return new CourseResponse("下課時間不得早於上課時間");
+			}
+			if (courseDao.findByCourseCode(course.getCourseCode()) != (null)) {
+				return new CourseResponse("課程代碼已重複");
+			}
+			if (course.getCredit() < 0 || course.getCredit() > 3) {
+				return new CourseResponse("學分數錯誤，請輸入1~3");
+			}
+			list.add(course);
+		}
+		courseDao.saveAll(list);
+		return new CourseResponse("課程新增完成");
+	}
+
+	// 刪除課程
+	@Override
+	public CourseResponse deleteCourse(CourseRequest req) {
+		List<Course> removeCoureseList = new ArrayList<Course>();
+		for (String courseCode : req.getCourseCodeList()) {
+			if (!studentCourseDao.findByCourseName(courseCode).isEmpty()) {
+				return new CourseResponse("該課程還有學生修習");
+			}
+			removeCoureseList.add(courseDao.findByCourseCode(courseCode));
+		}
+		courseDao.deleteAll(removeCoureseList);
+		return new CourseResponse("移除課程成功");
+	}
+
+	// 刪除學生
+	public CourseResponse deleteStudent(CourseRequest req) {
+
+		if (studentDao.findById(req.getNumber()) == null) {
+			return new CourseResponse("查無此學號");
+		}
+		if (!studentCourseDao.findByNumber(req.getNumber()).isEmpty()) {
+			return new CourseResponse("此學生仍有修習課程，無法刪除");
+		}
+		studentDao.deleteById(req.getNumber());
+		return new CourseResponse("已刪除該學生");
+
+	}
+
+	// 一些簡化程式用的method
 	public boolean checkNumber(CourseRequest req) {
 		return studentDao.existsByNumber(req.getNumber());
-
 	}
 
 	public int credit(CourseRequest req) {
@@ -92,4 +107,80 @@ public class CourseServiceImpl implements CourseService {
 		return studentCredit;
 	}
 
+	public CourseResponse pickCourse(CourseRequest req) {
+		if (!checkNumber(req)) {
+			return new CourseResponse("學號錯誤");
+		}
+		int studentCredit = credit(req);
+		int chooseCredit = studentCredit;
+		List<StudentCourse> student = new ArrayList<StudentCourse>();
+		List<StudentCourse> overChoose = new ArrayList<StudentCourse>();
+		List<StudentCourse> studentCourseList = studentCourseDao
+				.findByNumber(req.getNumber());
+		for (String course : req.getCourseCodeList()) {
+			if (!courseDao.existsByCourseCode(course)) {
+				return new CourseResponse("課程代碼錯誤");
+			}
+			if (studentCourseDao.findByCourseName(course).size() == 3) {
+				return new CourseResponse("修課人數已滿", course);
+				// 一堂課只能三人修
+			}
+			Course lesson = courseDao.findByCourseCode(course);
+			chooseCredit += lesson.getCredit();
+			if (chooseCredit > 10) {
+				return new CourseResponse("選修的學分已超過10");
+			}
+			for (StudentCourse studentCourse : studentCourseList) {
+				var lessonWeek = courseDao
+						.findByCourseCode(studentCourse.getCourseCode());
+				if (lessonWeek.getWeek() == lesson.getWeek()) {
+					if (lesson.getStartTime() >= lessonWeek.getStartTime()
+							|| lesson.getStartTime() <= lessonWeek.getEndTime()) {
+						return new CourseResponse("衝堂");
+					}
+					if (lesson.getEndTime() >= lessonWeek.getStartTime()
+							|| lesson.getEndTime() <= lessonWeek.getEndTime()) {
+						return new CourseResponse("衝堂");
+					}
+				}
+			}
+			StudentCourse studentCourse = new StudentCourse(lesson.getCourseCode(),
+					req.getNumber(), lesson.getCourseName(), lesson.getCredit());
+			if (studentCourseList.contains(studentCourse)
+					|| (!studentCourseDao.findByNumberIsAndCourseNameIs(req.getNumber(),
+							lesson.getCourseName()).isEmpty())) {
+				overChoose.add(studentCourse);
+				continue;
+			}
+			student.add(studentCourse);
+		}
+		studentCourseDao.saveAll(student);
+		if (!overChoose.isEmpty()) {
+			return new CourseResponse("選課成功但重複選課", student);
+		}
+		return new CourseResponse("選課成功", student);
+//		選課成功
+	}
+
+	public CourseResponse dropCourse(CourseRequest req) {
+		if (!checkNumber(req)) {
+			return new CourseResponse("學號錯誤");
+		}
+		var dropCourseList = new ArrayList<StudentCourse>();
+		// 加選功能跟選課功能重複性太高 先只寫退選
+		for (String course : req.getCourseCodeList()) {
+			if (!courseDao.existsByCourseCode(course)) {
+				return new CourseResponse("課程代碼錯誤!");
+			}
+			var lesson = courseDao.findByCourseCode(course);
+			var studentCourse = studentCourseDao.findByNumberIsAndCourseCodeIs(
+					req.getNumber(), lesson.getCourseCode());
+			if (studentCourse == null) {
+				return new CourseResponse("你沒有修這堂課");
+			}
+			dropCourseList.add(studentCourse);
+		}
+		studentCourseDao.deleteAll(dropCourseList);
+		return new CourseResponse("已成功退選", dropCourseList);
+	}
 }
