@@ -225,7 +225,7 @@ public class CourseServiceImpl implements CourseService {
 		studentCourseDao.saveAll(student);
 		studentDao.setStudentCredit(req.getNumber(), chooseCredit);
 		if (!overChoose.isEmpty()) {
-			return new CourseResponse("選課成功但重複選課", student);
+			return new CourseResponse("選課成功但有重複選課", student);
 		}
 		return new CourseResponse("選課成功", student);
 	}
@@ -233,7 +233,7 @@ public class CourseServiceImpl implements CourseService {
 	// 退選課程
 	public CourseResponse dropCourse(CourseRequest req) {
 		if (!checkNumber(req.getNumber())) {
-			return new CourseResponse("學號錯誤");
+			return new CourseResponse("學號錯誤!");
 		}
 		var dropCourseList = new ArrayList<StudentCourse>();
 		for (String course : req.getCourseCodeList()) {
@@ -244,7 +244,7 @@ public class CourseServiceImpl implements CourseService {
 			var studentCourse = studentCourseDao.findByNumberIsAndCourseCodeIs(
 					req.getNumber(), lesson.getCourseCode());
 			if (studentCourse == null) {
-				return new CourseResponse("你沒有修這堂課");
+				return new CourseResponse("你沒有修這堂課!");
 			}
 			dropCourseList.add(studentCourse);
 		}

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SearchCourseResponse {
-
+	@JsonProperty("系統訊息")
 	private String message;
 	@JsonProperty("學生資料")
 	private Student student;
