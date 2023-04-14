@@ -13,6 +13,8 @@ import com.example.java_for_test.repository.StudentCourseDao;
 import com.example.java_for_test.repository.StudentDao;
 import com.example.java_for_test.vo.CourseRequest;
 import com.example.java_for_test.vo.CourseResponse;
+import com.example.java_for_test.vo.SearchCourseRequest;
+import com.example.java_for_test.vo.SearchCourseResponse;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -24,13 +26,13 @@ public class CourseServiceImpl implements CourseService {
 	@Autowired
 	StudentCourseDao studentCourseDao;
 
-//	選課功能
+	// 選課功能
 	@Override
 	public CourseResponse chooseCourse(CourseRequest req) {
 		return pickCourse(req);
 	}
 
-	// 退選功能
+	// 加退選功能
 	@Override
 	public CourseResponse pickAndDropCourse(CourseRequest req) {
 		if (req.getAddOrDrop().equals("加選")) {
@@ -52,6 +54,18 @@ public class CourseServiceImpl implements CourseService {
 			}
 			if (course.getCourseName().equals("")) {
 				return new CourseResponse("課程名稱不得為空");
+			}
+			if (course.getWeek() == null) {
+				return new CourseResponse("星期不得為空");
+			}
+			if (course.getStartTime() == null) {
+				return new CourseResponse("上課時間不得為空");
+			}
+			if (course.getEndTime() == null) {
+				return new CourseResponse("下課時間不得為空");
+			}
+			if (course.getCredit() == null) {
+				return new CourseResponse("學分不得為空");
 			}
 			if (course.getWeek() < 1 || course.getWeek() > 7) {
 				return new CourseResponse("星期錯誤，請正確輸入1~7");
@@ -89,7 +103,7 @@ public class CourseServiceImpl implements CourseService {
 	// 新增學生
 	public CourseResponse addNewStudent(CourseRequest req) {
 		var student = req.getStudent();
-		if (studentDao.existsById(req.getStudent().getNumber())) {
+		if (studentDao.existsById(student.getNumber())) {
 			return new CourseResponse("該學號已存在");
 		}
 		if (student.getNumber() == 0) {
@@ -109,7 +123,7 @@ public class CourseServiceImpl implements CourseService {
 	// 刪除學生
 	public CourseResponse deleteStudent(CourseRequest req) {
 
-		if (!checkNumber(req)) {
+		if (!checkNumber(req.getNumber())) {
 			return new CourseResponse("學號錯誤");
 		}
 		if (!studentCourseDao.findByNumber(req.getNumber()).isEmpty()) {
@@ -117,16 +131,52 @@ public class CourseServiceImpl implements CourseService {
 		}
 		studentDao.deleteById(req.getNumber());
 		return new CourseResponse("已刪除該學生");
+	}
 
+	// 查詢學生選到的所有課程
+	@Override
+	public SearchCourseResponse searchStudentCourse(SearchCourseRequest req) {
+		if (!checkNumber(req.getNumber())) {
+			return new SearchCourseResponse("學號錯誤");
+		}
+		var student = studentDao.findByNumber(req.getNumber());
+		List<Course> courseList = new ArrayList<Course>();
+		for (StudentCourse course : studentCourseDao.findByNumber(req.getNumber())) {
+			courseList.add(courseDao.findByCourseCode(course.getCourseCode()));
+		}
+		return new SearchCourseResponse("查詢成功!", student, courseList);
+	}
+
+	// 用課程代碼找課程
+	@Override
+	public SearchCourseResponse searchCourseByCode(SearchCourseRequest req) {
+		if (courseDao.findByCourseCode(req.getCourseCode()) == null) {
+			return new SearchCourseResponse("查無此代碼!");
+		}
+		return new SearchCourseResponse("查詢成功!",
+				courseDao.findByCourseCode(req.getCourseCode()));
+	}
+
+	// 用課程名稱找課程
+	@Override
+	public SearchCourseResponse searchCourseByName(SearchCourseRequest req) {
+		if (courseDao.findByCourseName(req.getCourseName()).isEmpty()) {
+			return new SearchCourseResponse("查無此課程名稱!");
+		}
+		return new SearchCourseResponse("查詢成功!",
+				courseDao.findByCourseName(req.getCourseName()));
 	}
 
 	// 一些簡化程式用的method
-	public boolean checkNumber(CourseRequest req) {
-		return studentDao.existsByNumber(req.getNumber());
+
+	// 確認學號正確
+	public boolean checkNumber(int number) {
+		return studentDao.existsByNumber(number);
 	}
 
+	// 選課
 	public CourseResponse pickCourse(CourseRequest req) {
-		if (!checkNumber(req)) {
+		if (!checkNumber(req.getNumber())) {
 			return new CourseResponse("學號錯誤");
 		}
 		int studentCredit = studentDao.findByNumber(req.getNumber()).getCredit();
@@ -178,11 +228,11 @@ public class CourseServiceImpl implements CourseService {
 			return new CourseResponse("選課成功但重複選課", student);
 		}
 		return new CourseResponse("選課成功", student);
-//		選課成功
 	}
 
+	// 退選課程
 	public CourseResponse dropCourse(CourseRequest req) {
-		if (!checkNumber(req)) {
+		if (!checkNumber(req.getNumber())) {
 			return new CourseResponse("學號錯誤");
 		}
 		var dropCourseList = new ArrayList<StudentCourse>();

@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.java_for_test.service.CourseService;
 import com.example.java_for_test.vo.CourseRequest;
 import com.example.java_for_test.vo.CourseResponse;
+import com.example.java_for_test.vo.SearchCourseRequest;
+import com.example.java_for_test.vo.SearchCourseResponse;
 
 @RestController
 public class CourseController {
@@ -44,4 +46,19 @@ public class CourseController {
 		return courseService.deleteStudent(req);
 	}
 
+	@PostMapping("/search_Student_Course")
+	public SearchCourseResponse searchStudentCourse(
+			@RequestBody SearchCourseRequest req) {
+		return courseService.searchStudentCourse(req);
+	}
+
+	@PostMapping("/search_Course_By_Code")
+	public SearchCourseResponse searchCourseByCode(@RequestBody SearchCourseRequest req) {
+		return courseService.searchCourseByCode(req);
+	}
+
+	@PostMapping("/search_Course_By_Name")
+	public SearchCourseResponse searchCourseByName(@RequestBody SearchCourseRequest req) {
+		return courseService.searchCourseByName(req);
+	}
 }

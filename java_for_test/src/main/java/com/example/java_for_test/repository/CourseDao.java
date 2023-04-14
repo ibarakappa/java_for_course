@@ -13,5 +13,5 @@ public interface CourseDao extends JpaRepository<Course, Integer> {
 
 	List<Course> findByWeekIs(int week);
 
-	Course findByCourseName(String code);
+	List<Course> findByCourseName(String code);
 }
