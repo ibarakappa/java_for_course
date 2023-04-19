@@ -16,4 +16,11 @@ class JavaForTestApplicationTests {
 	public void getStudents() {
 		studentDao.setStudentCredit(1001, 10);
 	}
+
+	int a = 1;
+
+	@Test
+	public void addTwoNumbers() {
+
+	}
 }
